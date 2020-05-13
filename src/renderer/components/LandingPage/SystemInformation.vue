@@ -27,10 +27,12 @@
         <div class="value">{{ platform }}</div>
       </div>
     </div>
+    <button @click="update">点击更新</button>
   </div>
 </template>
 
 <script>
+const { ipcRenderer } = require('electron')
   export default {
     data () {
       return {
@@ -41,7 +43,12 @@
         platform: require('os').platform(),
         vue: require('vue/package.json').version
       }
-    }
+    },
+    methods:{
+      update() {
+        ipcRenderer.send('checkUpdate', 123)
+      }
+    } 
   }
 </script>
 

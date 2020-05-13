@@ -1,48 +1,110 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain, Tray, Menu } from "electron";
+import { autoUpdater } from "electron-updater";
 
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
-if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+if (process.env.NODE_ENV !== "development") {
+  global.__static = require("path")
+    .join(__dirname, "/static")
+    .replace(/\\/g, "\\\\");
 }
 
-let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+let mainWindow;
+let forceQuit = false;
+const trayMenu = Menu.buildFromTemplate([
+  {
+    label: "退出",
+    role: "quit",
+  },
+]);
+const winURL =
+  process.env.NODE_ENV === "development"
+    ? `http://localhost:9080`
+    : `file://${__dirname}/index.html`;
 
-function createWindow () {
+const previewIcon =
+  process.env.NODE_ENV === "development"
+    ? "static/icons/icon.ico"
+    : `${global.__static}/icons/icon.ico`;
+function createWindow() {
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,
-    width: 1000
-  })
+    width: 1000,
+  });
 
-  mainWindow.loadURL(winURL)
+  mainWindow.loadURL(winURL);
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
+  mainWindow.on("close", (e) => {
+    if (forceQuit) return;
+    e.preventDefault();
+    // macOS全屏的处理
+    if (mainWindow.isFullScreen()) {
+      mainWindow.once("leave-full-screen", () => {
+        mainWindow.hide();
+      });
+      mainWindow.setFullScreen(false);
+    } else {
+      mainWindow.hide(); // 隐藏窗口
+    }
+  });
+
+  // 如果是windows系统模拟托盘菜单
+  if (process.platform === "win32") {
+    global.tray = new Tray(previewIcon);
+    global.tray.setToolTip("robotpcclient"); // 鼠标悬停托盘显示的文字
+    global.tray.setContextMenu(trayMenu); // 鼠标右键点击托盘菜单
+    global.tray.on('double-click', () => { // 双击唤起
+      mainWindow.show()
+    })
+  }
+
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
+
+  handleUpdate();
+}
+function handleUpdate() {
+  const returnData = {
+    error: { status: -1, msg: "检测更新查询异常" },
+    checking: { status: 0, msg: "正在检查应用程序更新" },
+    updateAva: { status: 1, msg: "检测到新版本，正在下载,请稍后" },
+    updateNotAva: { status: -1, msg: "您现在使用的版本为最新版本,无需更新!" },
+  };
+  //和之前package.json配置的一样
+  autoUpdater.setFeedURL(
+    "https://github.com/DongLee0504/electron_vue/releases"
+  );
+  //检查中
+  autoUpdater.on("checking-for-update", function() {});
+  ipcMain.on("checkUpdate", (event, data) => {
+    autoUpdater.checkForUpdates();
+  });
 }
 
-app.on('ready', createWindow)
+function sendUpdateMessage(text) {
+  mainWindow.webContents.send("message", text);
+}
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
+app.on("ready", createWindow);
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
   }
-})
+});
 
-app.on('activate', () => {
+app.on("activate", () => {
   if (mainWindow === null) {
-    createWindow()
+    createWindow();
   }
-})
+});
 
 /**
  * Auto Updater
