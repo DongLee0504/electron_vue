@@ -1,6 +1,6 @@
 {
   "name": "electron-vue",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "author": "donglee <wx_169b9269b31944e4a0196f99ad0f6c53@git.code.tencent.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -61,7 +61,8 @@
       {
         "provider": "github",
         "owner": "DongLee0504",
-        "repo": "electron_vue"
+        "repo": "electron_vue",
+        "token": "81100e74a963d2de2b49eacc6cc569b2d2b655b0"
       }
     ],
     "nsis": {

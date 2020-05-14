@@ -48,6 +48,10 @@ const { ipcRenderer } = require('electron')
       ipcRenderer.on('message', (e, data) => {
         console.log(data);
       })
+      ipcRenderer.on('downloadProgress', (e, data) => {
+        console.log('我是第四版')
+        console.log(data)
+      })
     },
     methods: {
       update() {

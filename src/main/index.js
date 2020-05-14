@@ -17,8 +17,8 @@ const trayMenu = Menu.buildFromTemplate([
   {
     label: "退出",
     click: function() {
-      forceQuit = true
-      app.quit()
+      forceQuit = true;
+      app.quit();
     },
   },
 ]);
@@ -43,7 +43,7 @@ function createWindow() {
 
   mainWindow.loadURL(winURL);
 
-  mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on("close", (e) => {
     if (forceQuit) return;
@@ -84,22 +84,33 @@ function handleUpdate() {
     updateNotAva: { status: -1, msg: "您现在使用的版本为最新版本,无需更新!" },
   };
   //和之前package.json配置的一样
-  autoUpdater.setFeedURL(
-    "https://github.com/DongLee0504/electron_vue/releases"
-  );
+  autoUpdater.setFeedURL({
+    provider: "github",
+    owner: "DongLee0504",
+    repo: "electron_vue",
+    token: "81100e74a963d2de2b49eacc6cc569b2d2b655b0",
+  });
   //检查中
-  autoUpdater.on('error', function (error) {
-    sendUpdateMessage(message.error)
+  autoUpdater.on("error", function(error) {
+    sendUpdateMessage(message.error);
   });
-  autoUpdater.on('checking-for-update', function () {
-    sendUpdateMessage(message.checking)
+  autoUpdater.on("checking-for-update", function() {
+    sendUpdateMessage(message.checking);
   });
-  autoUpdater.on('update-available', function (info) {
-    sendUpdateMessage(message.updateAva)
+  autoUpdater.on("update-available", function(info) {
+    sendUpdateMessage(message.updateAva);
   });
-  autoUpdater.on('update-not-available', function (info) {
-    sendUpdateMessage(message.updateNotAva)
+  autoUpdater.on("update-not-available", function(info) {
+    sendUpdateMessage(message.updateNotAva);
   });
+  // 更新下载进度事件
+  autoUpdater.on('download-progress', function (progressObj) {
+    mainWindow.webContents.send('downloadProgress', progressObj)
+  })
+  // 下载完成
+  autoUpdater.on('update-downloaded', function() {
+    autoUpdater.quitAndInstall();
+  })
   ipcMain.on("checkUpdate", (event, data) => {
     autoUpdater.checkForUpdates();
   });
