@@ -84,12 +84,12 @@ function handleUpdate() {
     updateNotAva: { status: -1, msg: "您现在使用的版本为最新版本,无需更新!" },
   };
   //和之前package.json配置的一样
-  autoUpdater.setFeedURL({
-    provider: "github",
-    owner: "DongLee0504",
-    repo: "electron_vue",
-    token: "81100e74a963d2de2b49eacc6cc569b2d2b655b0",
-  });
+  // autoUpdater.setFeedURL({
+  //   provider: "github",
+  //   owner: "DongLee0504",
+  //   repo: "electron_vue",
+  //   token: "2f9adea1bdc87b0430e4e41593c079bd21a5ce9a",
+  // });
   //检查中
   autoUpdater.on("error", function(error) {
     sendUpdateMessage(message.error);

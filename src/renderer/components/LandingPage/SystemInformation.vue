@@ -49,7 +49,7 @@ const { ipcRenderer } = require('electron')
         console.log(data);
       })
       ipcRenderer.on('downloadProgress', (e, data) => {
-        console.log('我是第四版')
+        console.log('我变化了')
         console.log(data)
       })
     },
