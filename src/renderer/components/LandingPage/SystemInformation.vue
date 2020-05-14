@@ -44,7 +44,12 @@ const { ipcRenderer } = require('electron')
         vue: require('vue/package.json').version
       }
     },
-    methods:{
+    mounted() {
+      ipcRenderer.on('message', (e, data) => {
+        console.log(data);
+      })
+    },
+    methods: {
       update() {
         ipcRenderer.send('checkUpdate', 123)
       }

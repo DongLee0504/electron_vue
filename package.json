@@ -1,6 +1,6 @@
 {
   "name": "electron-vue",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "donglee <wx_169b9269b31944e4a0196f99ad0f6c53@git.code.tencent.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -57,6 +57,13 @@
     "linux": {
       "icon": "build/icons"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "DongLee0504",
+        "repo": "electron_vue"
+      }
+    ],
     "nsis": {
       "oneClick": false,
       "createDesktopShortcut": true,

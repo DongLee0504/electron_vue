@@ -12,11 +12,14 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 let mainWindow;
-let forceQuit = false;
+let forceQuit = false; // 是否强制退出
 const trayMenu = Menu.buildFromTemplate([
   {
     label: "退出",
-    role: "quit",
+    click: function() {
+      forceQuit = true
+      app.quit()
+    },
   },
 ]);
 const winURL =
@@ -40,6 +43,8 @@ function createWindow() {
 
   mainWindow.loadURL(winURL);
 
+  mainWindow.webContents.openDevTools()
+
   mainWindow.on("close", (e) => {
     if (forceQuit) return;
     e.preventDefault();
@@ -59,9 +64,10 @@ function createWindow() {
     global.tray = new Tray(previewIcon);
     global.tray.setToolTip("robotpcclient"); // 鼠标悬停托盘显示的文字
     global.tray.setContextMenu(trayMenu); // 鼠标右键点击托盘菜单
-    global.tray.on('double-click', () => { // 双击唤起
-      mainWindow.show()
-    })
+    global.tray.on("double-click", () => {
+      // 双击唤起
+      mainWindow.show();
+    });
   }
 
   mainWindow.on("closed", () => {
@@ -71,7 +77,7 @@ function createWindow() {
   handleUpdate();
 }
 function handleUpdate() {
-  const returnData = {
+  const message = {
     error: { status: -1, msg: "检测更新查询异常" },
     checking: { status: 0, msg: "正在检查应用程序更新" },
     updateAva: { status: 1, msg: "检测到新版本，正在下载,请稍后" },
@@ -82,7 +88,18 @@ function handleUpdate() {
     "https://github.com/DongLee0504/electron_vue/releases"
   );
   //检查中
-  autoUpdater.on("checking-for-update", function() {});
+  autoUpdater.on('error', function (error) {
+    sendUpdateMessage(message.error)
+  });
+  autoUpdater.on('checking-for-update', function () {
+    sendUpdateMessage(message.checking)
+  });
+  autoUpdater.on('update-available', function (info) {
+    sendUpdateMessage(message.updateAva)
+  });
+  autoUpdater.on('update-not-available', function (info) {
+    sendUpdateMessage(message.updateNotAva)
+  });
   ipcMain.on("checkUpdate", (event, data) => {
     autoUpdater.checkForUpdates();
   });
