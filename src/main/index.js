@@ -1,4 +1,14 @@
-import { app, BrowserWindow, ipcMain, Tray, Menu } from "electron";
+import {
+  app,
+  BrowserWindow,
+  BrowserView,
+  ipcMain,
+  Tray,
+  Menu,
+  powerMonitor,
+  powerSaveBlocker,
+  Notification,
+} from "electron";
 import { autoUpdater } from "electron-updater";
 
 /**
@@ -12,6 +22,7 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 let mainWindow;
+let browserView;
 let forceQuit = false; // 是否强制退出
 const trayMenu = Menu.buildFromTemplate([
   {
@@ -74,6 +85,30 @@ function createWindow() {
     mainWindow = null;
   });
 
+  // 休眠与唤醒
+  powerMonitor.on("suspend", () => {
+    console.log("The system is going to sleep");
+  });
+  powerMonitor.on("resume", () => {
+    console.log("The system is going to awake");
+  });
+
+  // 阻止休眠
+  var id = powerSaveBlocker.start("prevent-display-sleep");
+  powerSaveBlocker.stop(id);
+
+  // 打开嵌入的网页
+  ipcMain.on("openVier", (e, data) => {
+    browserView = new BrowserView();
+    mainWindow.setBrowserView(browserView);
+    browserView.setBounds({ x: 0, y: 0, width: 1000, height: 563 });
+    browserView.webContents.loadURL(data.url);
+  });
+  ipcMain.on("pushNotify", (e, data) => {
+    console.log(Notification.isSupported())
+    new Notification(data.title, data.option);
+  });
+
   handleUpdate();
 }
 function handleUpdate() {
@@ -97,13 +132,13 @@ function handleUpdate() {
     sendUpdateMessage(message.updateNotAva);
   });
   // 更新下载进度事件
-  autoUpdater.on('download-progress', function (progressObj) {
-    mainWindow.webContents.send('downloadProgress', progressObj)
-  })
+  autoUpdater.on("download-progress", function(progressObj) {
+    mainWindow.webContents.send("downloadProgress", progressObj);
+  });
   // 下载完成
-  autoUpdater.on('update-downloaded', function() {
+  autoUpdater.on("update-downloaded", function() {
     autoUpdater.quitAndInstall();
-  })
+  });
   ipcMain.on("checkUpdate", (event, data) => {
     autoUpdater.checkForUpdates();
   });

@@ -28,62 +28,75 @@
       </div>
     </div>
     <button @click="update">点击更新</button>
+    <button @click="openView">打开网页</button>
+    <button @click="pushNotify">推送消息</button>
   </div>
 </template>
 
 <script>
-const { ipcRenderer } = require('electron')
-  export default {
-    data () {
-      return {
-        electron: process.versions.electron,
-        name: this.$route.name,
-        node: process.versions.node,
-        path: this.$route.path,
-        platform: require('os').platform(),
-        vue: require('vue/package.json').version
-      }
+const { ipcRenderer } = require("electron");
+export default {
+  data() {
+    return {
+      electron: process.versions.electron,
+      name: this.$route.name,
+      node: process.versions.node,
+      path: this.$route.path,
+      platform: require("os").platform(),
+      vue: require("vue/package.json").version
+    };
+  },
+  mounted() {
+    ipcRenderer.on("message", (e, data) => {
+      console.log(data);
+    });
+    ipcRenderer.on("downloadProgress", (e, data) => {
+      console.log("1.0.6");
+      console.log(data);
+    });
+  },
+  methods: {
+    update() {
+      ipcRenderer.send("checkUpdate", 123);
     },
-    mounted() {
-      ipcRenderer.on('message', (e, data) => {
-        console.log(data);
-      })
-      ipcRenderer.on('downloadProgress', (e, data) => {
-        console.log('1.0.6')
-        console.log(data)
-      })
+    openView() {
+      ipcRenderer.send("openVier", { url: "http://www.baidu.com" });
     },
-    methods: {
-      update() {
-        ipcRenderer.send('checkUpdate', 123)
-      }
-    } 
+    pushNotify() {
+      ipcRenderer.send("pushNotify", {
+        title: "我来啦",
+        option: { body: "约饭啊" }
+      });
+    }
   }
+};
 </script>
 
 <style scoped>
-  .title {
-    color: #888;
-    font-size: 18px;
-    font-weight: initial;
-    letter-spacing: .25px;
-    margin-top: 10px;
-  }
+.title {
+  color: #888;
+  font-size: 18px;
+  font-weight: initial;
+  letter-spacing: 0.25px;
+  margin-top: 10px;
+}
 
-  .items { margin-top: 8px; }
+.items {
+  margin-top: 8px;
+}
 
-  .item {
-    display: flex;
-    margin-bottom: 6px;
-  }
+.item {
+  display: flex;
+  margin-bottom: 6px;
+}
 
-  .item .name {
-    color: #6a6a6a;
-    margin-right: 6px;
-  }
+.item .name {
+  color: #6a6a6a;
+  margin-right: 6px;
+}
 
-  .item .value {
-    color: #35495e;
-    font-weight: bold;
-  }
+.item .value {
+  color: #35495e;
+  font-weight: bold;
+}
 </style>
