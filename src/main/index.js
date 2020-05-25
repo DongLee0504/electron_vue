@@ -109,6 +109,11 @@ function createWindow() {
     new Notification(data.title, data.option);
   });
 
+  // 显示气泡
+  ipcMain.on('displayBalloon', (e, option) => {
+    global.tray.displayBalloon(option)
+  })
+
   handleUpdate();
 }
 function handleUpdate() {

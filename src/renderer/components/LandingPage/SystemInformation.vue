@@ -30,6 +30,7 @@
     <button @click="update">点击更新</button>
     <button @click="openView">打开网页</button>
     <button @click="pushNotify">推送消息</button>
+    <button @click="displayBalloon">显示气泡</button>
   </div>
 </template>
 
@@ -66,6 +67,13 @@ export default {
       ipcRenderer.send("pushNotify", {
         title: "我来啦",
         option: { body: "约饭啊" }
+      });
+    },
+    displayBalloon() {
+      ipcRenderer.send("displayBalloon", {
+        title: "我是气泡",
+        icon: "none",
+        content: "你有一条新消息"
       });
     }
   }
