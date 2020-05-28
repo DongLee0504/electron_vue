@@ -72,7 +72,7 @@ export default {
     displayBalloon() {
       ipcRenderer.send("displayBalloon", {
         title: "我是气泡",
-        icon: "none",
+        iconType: 'custom',
         content: "你有一条新消息"
       });
     }

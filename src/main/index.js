@@ -8,6 +8,7 @@ import {
   powerMonitor,
   powerSaveBlocker,
   Notification,
+  nativeImage
 } from "electron";
 import { autoUpdater } from "electron-updater";
 
@@ -40,8 +41,8 @@ const winURL =
 
 const previewIcon =
   process.env.NODE_ENV === "development"
-    ? "static/icons/icon.ico"
-    : `${global.__static}/icons/icon.ico`;
+    ? "static/icons/256x256.png"
+    : `${global.__static}/icons/256x256.png`;
 function createWindow() {
   /**
    * Initial window options
@@ -111,6 +112,7 @@ function createWindow() {
 
   // 显示气泡
   ipcMain.on('displayBalloon', (e, option) => {
+    option.icon = previewIcon
     global.tray.displayBalloon(option)
   })
 
